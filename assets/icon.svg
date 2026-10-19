@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="110" fill="#153d35"/>
+  <rect x="76" y="76" width="360" height="360" rx="72" fill="#d5e9b7"/>
+  <g transform="translate(126, 136) scale(10.8)" stroke="#183e34" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="m4 10 2-6h12l2 6" />
+    <path d="M3 17v3m18-3v3" />
+    <path d="M2 10h20v7H2z" fill="#d5e9b7" />
+    <path d="M5 13h3m8 0h3" />
+  </g>
+  <text x="256" y="405" font-family="Inter, -apple-system, sans-serif" font-size="28" font-weight="800" fill="#153d35" text-anchor="middle" letter-spacing="3">STONIC AI</text>
+</svg>

@@ -1,0 +1,35 @@
+manifestVersion: 1
+id: mandebitcoin-stonic-driver-ai
+name: Stonic Driver AI
+tagline: Bitácora personal y asistente de conducción para Kia Stonic en Guayaquil
+icon: https://raw.githubusercontent.com/ManDeBitcoin/stonic-driver-ai/main/assets/icon.png
+category: personal
+version: "0.1.0"
+port: 5174
+description: >-
+  Stonic Driver AI es tu bitácora personal y copiloto para el registro eficiente de jornadas,
+  combustible y viajes con tu Kia Stonic en Guayaquil.
+
+  Características principales:
+  • Importación inteligente de reportes CSV de Uber Driver (detección automática de columnas, comisiones y vista previa con resolución de duplicados).
+  • Registro diario de jornadas: viajes completados, horas trabajadas, kilometraje e ingresos netos.
+  • Historial de abastecimiento de combustible, control de odómetro y precio por galón en USD.
+  • Métricas claras de desempeño: ingresos por hora, saldo registrado y resúmenes semanales.
+  • 100% privado, local y soberano: tus datos se ejecutan en tu propio Umbrel OS bajo tu control.
+developer: ManDeBitcoin
+website: https://github.com/ManDeBitcoin/stonic-driver-ai
+repo: https://github.com/ManDeBitcoin/stonic-driver-ai
+support: https://github.com/ManDeBitcoin/stonic-driver-ai/issues
+dependencies: []
+gallery:
+  - https://raw.githubusercontent.com/ManDeBitcoin/stonic-driver-ai/main/docs/screenshots/dashboard.png
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: |-
+  Versión 0.1.0
+
+  - Primera versión para producción en Umbrel OS.
+  - Módulo de importación automática de reportes CSV de Uber Driver (viaje por viaje o consolidado diario).
+  - Interfaz web PWA responsiva accesible de forma remota vía Tailscale desde el celular.
+  - Arquitectura en contenedor Docker con servidor Nginx optimizado y compresión gzip.
