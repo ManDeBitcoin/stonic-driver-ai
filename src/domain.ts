@@ -12,7 +12,7 @@ export const LEGACY_STORAGE_KEY = 'stonic-driver-ai:real:v1';
 export const emptyData = (): Data => ({ version: 1, shifts: [], fuel: [] });
 export const money = (n: number) => new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(n);
 export const number = (n: number) => new Intl.NumberFormat('es-EC', { maximumFractionDigits: 3 }).format(n);
-export const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guayaquil', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+export const today = () => new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 export const dateLabel = (date: string) => new Intl.DateTimeFormat('es-EC', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${date}T12:00:00Z`));
 export function validDate(value: unknown): value is string {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value)) && new Date(`${value}T12:00:00Z`).toISOString().slice(0, 10) === value;
@@ -62,7 +62,7 @@ export function demoData(): Data {
   const end = new Date(`${today()}T12:00:00Z`);
   const shifts = incomes.map((income, index) => {
     const date = new Date(end); date.setUTCDate(date.getUTCDate() - 6 + index);
-    return { id: `demo-shift-${index}`, date: date.toISOString().slice(0, 10), income, hours: [5, 6, 5.5, 7, 8, 6, 7.5][index], km: [94, 118, 102, 140, 158, 124, 148][index], trips: [12, 16, 14, 19, 22, 17, 20][index], otherCosts: index % 2 ? 2.50 : 0, notes: 'Ejemplo ficticio · Guayaquil' };
+    return { id: `demo-shift-${index}`, date: date.toISOString().slice(0, 10), income, hours: [5, 6, 5.5, 7, 8, 6, 7.5][index], km: [94, 118, 102, 140, 158, 124, 148][index], trips: [12, 16, 14, 19, 22, 17, 20][index], otherCosts: index % 2 ? 2.50 : 0, notes: 'Ejemplo de práctica' };
   });
   return { version: 1, shifts, fuel: [1, 4].map((i) => ({ id: `demo-fuel-${i}`, date: shifts[i].date, gallons: 7.5, cost: 25.50, odometer: 20000 + i * 120, notes: 'Carga ficticia; no representa precios actuales.' })) };
 }

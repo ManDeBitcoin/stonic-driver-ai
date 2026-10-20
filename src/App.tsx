@@ -6,6 +6,15 @@ import { parseUberCsv } from './uberCsv.ts';
 import type { UberImportResult } from './uberCsv.ts';
 
 type Tab = 'Resumen' | 'Jornadas' | 'Combustible' | 'Mis datos';
+type VehicleSettings = { model: string; plate: string; city: string };
+const SETTINGS_KEY = 'uber-driver-ai:settings:v1';
+function loadSettings(): VehicleSettings {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { model: '', plate: '', city: '' };
+}
 function load() {
   let raw: string | null = null;
   try {
@@ -49,6 +58,8 @@ export default function App() {
   const [formKey, setFormKey] = useState(0);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
+  const [settings, setSettings] = useState<VehicleSettings>(loadSettings);
+  const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
   const uberFileRef = useRef<HTMLInputElement>(null);
   const [uberPreview, setUberPreview] = useState<UberImportResult | null>(null);
@@ -147,15 +158,38 @@ export default function App() {
     }
   }
 
+  function saveVehicle(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const next: VehicleSettings = {
+      model: String(form.get('model') || '').trim(),
+      plate: String(form.get('plate') || '').trim(),
+      city: String(form.get('city') || '').trim(),
+    };
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+    setSettings(next);
+    setVehicleModalOpen(false);
+    setMessage('Vehículo y preferencias guardadas en este dispositivo.');
+  }
+
   return <div className="app-shell">
     <aside className="sidebar">
       <a className="brand" href="#" onClick={e => { e.preventDefault(); navigate('Resumen'); }}><span className="brand-icon"><Icon kind="car"/></span><span>uber<span className="brand-sub">DRIVER AI</span></span></a>
       <p className="nav-label">TU ESPACIO DE CONDUCCIÓN</p>
       <nav aria-label="Navegación principal">{tabs.map((name, i) => <button key={name} className={tab === name ? 'nav-item active' : 'nav-item'} aria-current={tab === name ? 'page' : undefined} onClick={() => navigate(name)}><Icon kind={name}/>{name}<span className="nav-index">0{i + 1}</span></button>)}</nav>
-      <div className="sidebar-bottom"><div className="vehicle"><Icon kind="car"/><div><strong>Kia Stonic</strong><small>Guayaquil, Ecuador</small></div></div><div className="local-status"><span/> Proyecto local · v0.1</div></div>
+      <div className="sidebar-bottom">
+        <button type="button" className="vehicle-btn" onClick={() => setVehicleModalOpen(true)} title="Haz clic para personalizar tu vehículo">
+          <Icon kind="car"/>
+          <div>
+            <strong>{settings.model || 'Configurar vehículo'}</strong>
+            <small>{settings.city || settings.plate || 'Toca para personalizar'}</small>
+          </div>
+        </button>
+        <div className="local-status"><span/> Proyecto local · v0.1.2</div>
+      </div>
     </aside>
     <main>
-      <header className="topbar"><span>MI BITÁCORA <span className="slash">/</span> <strong>{tab}</strong></span><span className="location">Guayaquil <span>·</span> USD</span></header>
+      <header className="topbar"><span>MI BITÁCORA <span className="slash">/</span> <strong>{tab}</strong></span><span className="location">{settings.city ? <>{settings.city} <span>·</span> </> : null}USD</span></header>
       <div className="content">
         <div className="page-heading"><div><p className="eyebrow">CADA JORNADA CUENTA</p><h1>{tab === 'Resumen' ? 'Tu camino, en números.' : tab === 'Jornadas' ? 'Registra tu jornada.' : tab === 'Combustible' ? 'Cada carga, bajo control.' : 'Tus datos, contigo.'}</h1><p className="subtitle">{tab === 'Resumen' ? 'Una mirada clara a tu trabajo y a tu vehículo.' : tab === 'Jornadas' ? 'Anota cómo te fue al terminar de conducir.' : tab === 'Combustible' ? 'Lleva un historial de tus compras de combustible.' : 'Guarda una copia y conoce los próximos pasos.'}</p></div><span className="version-tag">PRIMERA VERSIÓN</span></div>
         <section className={mode === 'demo' ? 'mode-banner' : 'mode-banner real'} aria-label="Modo de datos"><div><strong>{mode === 'demo' ? 'Estás explorando datos de ejemplo' : 'Estás usando tus registros personales'}</strong><p>{mode === 'demo' ? 'Practica con cifras ficticias. Los cambios de práctica se reinician al recargar.' : 'Guardados en este navegador. Descarga respaldos para conservar una copia.'}</p></div><button className="outline" onClick={() => { setMode(mode === 'demo' ? 'real' : 'demo'); setEditing(null); setFormKey(k => k + 1); setMessage(''); setError(''); setFrom(''); setTo(''); }}>{mode === 'demo' ? 'Usar mis registros' : 'Ver demostración'} <span aria-hidden="true">↗</span></button></section>
@@ -178,7 +212,12 @@ export default function App() {
           <section className="panel"><div className="section-heading"><h2>{editing ? 'Editar carga' : 'Nueva carga'}</h2><span className="small-badge">REGISTRO MANUAL</span></div><form key={formKey} onSubmit={saveFuel}><div className="form-grid"><Field label="Fecha de la carga" name="date" type="date" value={editing?.date ?? today()}/><Field label="Galones estadounidenses" name="gallons" value={(editing as Fuel)?.gallons} min={0.001} max={100} step="0.001" hint="Copia la cantidad que figura en el recibo."/><Field label="Total pagado (USD)" name="cost" value={(editing as Fuel)?.cost} min={0.01} max={10000}/><Field label="Odómetro (km)" name="odometer" value={(editing as Fuel)?.odometer} max={2000000} hint="Kilometraje total que muestra tu vehículo."/></div><label className="field notes">Nota opcional<textarea name="notes" maxLength={500} defaultValue={editing?.notes} placeholder="Por ejemplo: estación y número de recibo"/></label><div className="form-actions"><button type="submit">{editing ? 'Guardar cambios' : 'Guardar carga'}</button>{editing && <button type="button" className="outline" onClick={() => { setEditing(null); setFormKey(k => k + 1); }}>Cancelar edición</button>}<small>El precio por galón se calcula con tu recibo.</small></div></form></section>
           <section className="panel"><div className="section-heading"><h2>Historial de combustible</h2><span className="muted">{filtered.fuel.length} cargas en el período</span></div>{filtered.fuel.length && !invalidRange ? <div className="table-scroll"><table><thead><tr><th>Fecha</th><th>Galones</th><th>Total</th><th>USD / galón</th><th>Odómetro</th><th>Nota</th><th>Acciones</th></tr></thead><tbody>{[...filtered.fuel].sort((a, b) => b.date.localeCompare(a.date)).map(f => <tr key={f.id}><td>{dateLabel(f.date)}<small>{f.date.slice(0, 4)}</small></td><td>{number(f.gallons)}</td><td><strong>{money(f.cost)}</strong></td><td>{money(f.cost / f.gallons)}</td><td>{number(f.odometer)} km</td><td className="note-cell">{f.notes || '—'}</td><td><div className="row-actions"><button className="text-button" onClick={() => edit(f)} aria-label={`Editar carga del ${f.date}`}>Editar</button><button className="text-button danger" onClick={() => remove(f.id, 'fuel')} aria-label={`Eliminar carga del ${f.date}`}>Eliminar</button></div></td></tr>)}</tbody></table></div> : <p className="muted">Todavía no hay cargas en este período.</p>}<p className="calculation-note">Estos registros muestran compras. El rendimiento en km/galón requiere un método de tanque lleno y se añadirá más adelante.</p></section>
         </>}
-        {tab === 'Mis datos' && <div className="settings-grid"><section className="panel"><span className="round-icon"><Icon kind="Mis datos"/></span><h2>Una copia para estar tranquilo</h2><p>Descarga todos los registros del modo actual. Para restaurarlos, usa un respaldo de datos reales de esta aplicación.</p><p className="muted">{data.shifts.length} jornadas · {data.fuel.length} cargas · {mode === 'demo' ? 'Datos de ejemplo' : 'Datos reales'}</p><div className="stack"><button onClick={exportBackup} disabled={Boolean(loadError) && mode === 'real'}>Descargar respaldo {mode === 'demo' ? 'de ejemplo' : ''}</button><button className="outline" disabled={mode === 'demo'} onClick={() => importRef.current?.click()}>Restaurar respaldo real</button><input ref={importRef} type="file" accept=".json,application/json" hidden onChange={e => void restore(e.target.files?.[0])}/>{loadError && rawRef.current && <button className="outline" onClick={() => download(rawRef.current!, 'stonic-recuperacion.json')}>Descargar archivo de recuperación</button>}</div><p className="calculation-note">Restaurar reemplaza tus registros y pide confirmación. Descarga primero una copia de tus datos actuales.</p></section><section className="panel"><span className="badge-uber">UBER DRIVER</span><h2>Importar reporte de Uber</h2><p>Importa el archivo CSV oficial descargado desde <strong>drivers.uber.com</strong> (Extractos semanales o Actividad de viajes). Tu bitácora calculará viajes, ingresos, horas y km automáticamente.</p><div className="stack"><button onClick={() => uberFileRef.current?.click()}><Icon kind="upload"/> Seleccionar archivo CSV de Uber</button></div><p className="calculation-note">Tus datos se procesan 100% de manera local y privada en tu navegador. No se envían a ningún servidor externo.</p></section><section className="panel privacy-panel"><h2>¿Dónde están mis datos?</h2><p>En el almacenamiento de este navegador y esta dirección local. No hay cuenta, servidor remoto ni sincronización con tu iPhone. Borrar los datos del navegador puede borrar tus registros. Usa siempre la misma dirección y perfil de navegador; evita el modo incógnito.</p><p>La aplicación no envía tus registros a Uber ni a OpenAI. Las copias descargadas no están cifradas; consérvalas en una carpeta privada. El acceso depende de tu cuenta de Windows y del navegador.</p></section></div>}
+        {tab === 'Mis datos' && <div className="settings-grid">
+          <section className="panel"><span className="round-icon"><Icon kind="Mis datos"/></span><h2>Una copia para estar tranquilo</h2><p>Descarga todos los registros del modo actual. Para restaurarlos, usa un respaldo de datos reales de esta aplicación.</p><p className="muted">{data.shifts.length} jornadas · {data.fuel.length} cargas · {mode === 'demo' ? 'Datos de ejemplo' : 'Datos reales'}</p><div className="stack"><button onClick={exportBackup} disabled={Boolean(loadError) && mode === 'real'}>Descargar respaldo {mode === 'demo' ? 'de ejemplo' : ''}</button><button className="outline" disabled={mode === 'demo'} onClick={() => importRef.current?.click()}>Restaurar respaldo real</button><input ref={importRef} type="file" accept=".json,application/json" hidden onChange={e => void restore(e.target.files?.[0])}/>{loadError && rawRef.current && <button className="outline" onClick={() => download(rawRef.current!, 'uber-recuperacion.json')}>Descargar archivo de recuperación</button>}</div><p className="calculation-note">Restaurar reemplaza tus registros y pide confirmación. Descarga primero una copia de tus datos actuales.</p></section>
+          <section className="panel"><span className="round-icon"><Icon kind="car"/></span><h2>Tu Vehículo y Preferencias</h2><p>Personaliza tu bitácora con los datos de tu vehículo y ciudad. Se almacenan 100% en este dispositivo para tu total privacidad.</p><form onSubmit={saveVehicle} style={{ marginTop: '14px' }}><div style={{ display: 'grid', gap: '14px' }}><label className="field">Modelo del vehículo<input name="model" type="text" defaultValue={settings.model} placeholder="Ej. Kia Stonic, Chevrolet Onix, etc."/></label><label className="field">Placa / ID (opcional)<input name="plate" type="text" defaultValue={settings.plate} placeholder="Ej. GXX-1234"/></label><label className="field">Ciudad / Ubicación<input name="city" type="text" defaultValue={settings.city} placeholder="Ej. Guayaquil, Quito, etc."/></label></div><div className="form-actions" style={{ marginTop: '16px' }}><button type="submit">Guardar preferencias</button></div></form></section>
+          <section className="panel"><span className="badge-uber">UBER DRIVER</span><h2>Importar reporte de Uber</h2><p>Importa el archivo CSV oficial descargado desde <strong>drivers.uber.com</strong> (Extractos semanales o Actividad de viajes). Tu bitácora calculará viajes, ingresos, horas y km automáticamente.</p><div className="stack"><button onClick={() => uberFileRef.current?.click()}><Icon kind="upload"/> Seleccionar archivo CSV de Uber</button></div><p className="calculation-note">Tus datos se procesan 100% de manera local y privada en tu navegador. No se envían a ningún servidor externo.</p></section>
+          <section className="panel privacy-panel"><h2>¿Dónde están mis datos?</h2><p>En el almacenamiento de este navegador y esta dirección local. No hay cuenta, servidor remoto ni sincronización con tu iPhone. Borrar los datos del navegador puede borrar tus registros. Usa siempre la misma dirección y perfil de navegador; evita el modo incógnito.</p><p>La aplicación no envía tus registros a Uber ni a OpenAI. Las copias descargadas no están cifradas; consérvalas en una carpeta privada. El acceso depende de tu cuenta de Windows y del navegador.</p></section>
+        </div>}
         <input ref={uberFileRef} type="file" accept=".csv,text/csv,text/plain" hidden onChange={e => void handleUberFile(e.target.files?.[0])}/>
         {uberPreview && <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
           <div className="modal">
@@ -226,7 +265,43 @@ export default function App() {
             </div>
           </div>
         </div>}
-        <footer><span>UBER DRIVER AI</span><span>Hecho para tu día a día en Guayaquil.</span><span>Local · Personal · Soberano</span></footer>
+        {vehicleModalOpen && <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="vehicle-modal-title">
+          <div className="modal">
+            <div className="modal-header">
+              <div>
+                <span className="badge-uber">CONFIGURACIÓN</span>
+                <h3 id="vehicle-modal-title" style={{ marginTop: '6px' }}>Tu Vehículo y Ubicación</h3>
+              </div>
+              <button className="text-button" onClick={() => setVehicleModalOpen(false)} aria-label="Cerrar modal">✕</button>
+            </div>
+            <form onSubmit={saveVehicle}>
+              <div className="modal-body">
+                <p className="muted" style={{ margin: 0 }}>
+                  Configura los datos de tu vehículo y ciudad. Esta información vive únicamente en el almacenamiento local de este dispositivo y nunca se expone en repositorios públicos.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <label className="field">
+                    Modelo de vehículo
+                    <input name="model" type="text" defaultValue={settings.model} placeholder="Ej. Kia Stonic, Chevrolet Onix, etc." autoFocus />
+                  </label>
+                  <label className="field">
+                    Placa o identificación (opcional)
+                    <input name="plate" type="text" defaultValue={settings.plate} placeholder="Ej. GXX-1234" />
+                  </label>
+                  <label className="field">
+                    Ciudad / Ubicación
+                    <input name="city" type="text" defaultValue={settings.city} placeholder="Ej. Guayaquil, Quito, etc." />
+                  </label>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="outline" onClick={() => setVehicleModalOpen(false)}>Cancelar</button>
+                <button type="submit">Guardar preferencias</button>
+              </div>
+            </form>
+          </div>
+        </div>}
+        <footer><span>UBER DRIVER AI</span><span>{settings.city ? `Hecho para tu día a día en ${settings.city}.` : 'Hecho para tu día a día al volante.'}</span><span>Local · Personal · Soberano</span></footer>
       </div>
     </main>
   </div>;

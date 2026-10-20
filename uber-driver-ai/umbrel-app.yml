@@ -1,21 +1,22 @@
 manifestVersion: 1
 id: uber-driver-ai
 name: Uber Driver AI
-tagline: Bitácora personal y copiloto para conducir en Guayaquil
+tagline: Bitácora personal y copiloto privado para Uber
 icon: https://raw.githubusercontent.com/ManDeBitcoin/uber-driver-ai/main/assets/icon.png
 category: personal
-version: "0.1.1"
+version: "0.1.2"
 port: 5174
 description: >-
-  Uber Driver AI es tu bitácora personal y copiloto para el registro eficiente de jornadas,
-  combustible y viajes en Guayaquil.
+  Uber Driver AI es tu bitácora personal y copiloto privado para el registro eficiente de jornadas,
+  combustible y viajes al volante.
 
   Características principales:
   • Diseñada desde cero: perfecta para comenzar a registrar desde tu primer viaje y compra de gasolina.
+  • Personalización de vehículo y ubicación: añade tu vehículo y ciudad guardados localmente para mayor privacidad.
   • Registro manual ágil: fecha, horas trabajadas, kilómetros, viajes completados e ingresos netos en USD.
   • Historial y control de combustible: galones cargados, odómetro y costo por galón en tiempo real.
   • Métricas clave: ingresos por hora, saldo registrado y gráficos de desempeño semanal.
-  • Importación preparada de reportes CSV de Uber Driver cuando descargues tus extractos oficiales.
+  • Importación preparada de reportes CSV de Uber Driver con vista previa y deduplicación.
   • Soberana y privada: se ejecuta en tu propio servidor Umbrel OS bajo tu control.
 developer: ManDeBitcoin
 website: https://github.com/ManDeBitcoin/uber-driver-ai
@@ -28,8 +29,8 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: |-
-  Versión 0.1.0
+  Versión 0.1.2
 
-  - Nueva identidad: Uber Driver AI.
-  - Inicio limpio desde cero para registrar jornadas reales.
-  - Servidor de producción en contenedor Docker para Umbrel OS (puerto 5174).
+  - Personalización manual de vehículo y ubicación (guardados localmente en el navegador).
+  - Privacidad mejorada: sin datos personales fijos en el repositorio público.
+  - Importación completa de reportes CSV oficiales de Uber Driver con vista previa y resolución de conflictos.
