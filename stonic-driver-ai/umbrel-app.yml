@@ -1,5 +1,5 @@
 manifestVersion: 1
-id: mandebitcoin-stonic-driver-ai
+id: stonic-driver-ai
 name: Stonic Driver AI
 tagline: Bitácora personal y asistente de conducción para Kia Stonic en Guayaquil
 icon: https://raw.githubusercontent.com/ManDeBitcoin/stonic-driver-ai/main/assets/icon.png
