@@ -4,7 +4,7 @@ name: Uber Driver AI
 tagline: Bitácora personal y copiloto para conducir en Guayaquil
 icon: https://raw.githubusercontent.com/ManDeBitcoin/uber-driver-ai/main/assets/icon.png
 category: personal
-version: "0.1.0"
+version: "0.1.1"
 port: 5174
 description: >-
   Uber Driver AI es tu bitácora personal y copiloto para el registro eficiente de jornadas,
