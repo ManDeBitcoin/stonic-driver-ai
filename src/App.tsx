@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
-import { dateLabel, demoData, emptyData, filterData, money, number, parseBackup, parseData, STORAGE_KEY, summarize, today, validFuel, validShift } from './domain.ts';
+import { dateLabel, demoData, emptyData, filterData, money, number, parseBackup, parseData, STORAGE_KEY, LEGACY_STORAGE_KEY, summarize, today, validFuel, validShift } from './domain.ts';
 import type { Backup, Data, Fuel, Shift } from './domain.ts';
 import { parseUberCsv } from './uberCsv.ts';
 import type { UberImportResult } from './uberCsv.ts';
@@ -9,7 +9,7 @@ type Tab = 'Resumen' | 'Jornadas' | 'Combustible' | 'Mis datos';
 function load() {
   let raw: string | null = null;
   try {
-    raw = localStorage.getItem(STORAGE_KEY);
+    raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     return { data: raw ? parseData(JSON.parse(raw)) : emptyData(), raw, error: '' };
   } catch {
     return { data: emptyData(), raw, error: 'No se pudieron leer tus datos. No los sobrescribiremos. Descarga el archivo de recuperación en Mis datos o restaura un respaldo válido.' };
@@ -41,7 +41,7 @@ export default function App() {
   const rawRef = useRef(initial.raw);
   const [loadError, setLoadError] = useState(initial.error);
   const [demo, setDemo] = useState(demoData);
-  const [mode, setMode] = useState<'demo' | 'real'>(initial.raw ? 'real' : 'demo');
+  const [mode, setMode] = useState<'demo' | 'real'>('real');
   const [tab, setTab] = useState<Tab>('Resumen');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -95,8 +95,8 @@ export default function App() {
   }
   function edit(row: Shift | Fuel) { setEditing(row); setFormKey(k => k + 1); setMessage(''); setError(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }
   function exportBackup() {
-    const backup: Backup = { app: 'stonic-driver-ai', mode, exportedAt: new Date().toISOString(), data };
-    download(JSON.stringify(backup, null, 2), `stonic-respaldo-${mode}-${today()}.json`);
+    const backup: Backup = { app: 'uber-driver-ai', mode, exportedAt: new Date().toISOString(), data };
+    download(JSON.stringify(backup, null, 2), `uber-respaldo-${mode}-${today()}.json`);
     setMessage('Respaldo descargado. Guárdalo en un lugar privado.');
   }
   async function restore(file: File | undefined) {
@@ -149,7 +149,7 @@ export default function App() {
 
   return <div className="app-shell">
     <aside className="sidebar">
-      <a className="brand" href="#" onClick={e => { e.preventDefault(); navigate('Resumen'); }}><span className="brand-icon"><Icon kind="car"/></span><span>stonic<span className="brand-sub">DRIVER AI</span></span></a>
+      <a className="brand" href="#" onClick={e => { e.preventDefault(); navigate('Resumen'); }}><span className="brand-icon"><Icon kind="car"/></span><span>uber<span className="brand-sub">DRIVER AI</span></span></a>
       <p className="nav-label">TU ESPACIO DE CONDUCCIÓN</p>
       <nav aria-label="Navegación principal">{tabs.map((name, i) => <button key={name} className={tab === name ? 'nav-item active' : 'nav-item'} aria-current={tab === name ? 'page' : undefined} onClick={() => navigate(name)}><Icon kind={name}/>{name}<span className="nav-index">0{i + 1}</span></button>)}</nav>
       <div className="sidebar-bottom"><div className="vehicle"><Icon kind="car"/><div><strong>Kia Stonic</strong><small>Guayaquil, Ecuador</small></div></div><div className="local-status"><span/> Proyecto local · v0.1</div></div>
@@ -157,7 +157,7 @@ export default function App() {
     <main>
       <header className="topbar"><span>MI BITÁCORA <span className="slash">/</span> <strong>{tab}</strong></span><span className="location">Guayaquil <span>·</span> USD</span></header>
       <div className="content">
-        <div className="page-heading"><div><p className="eyebrow">CADA JORNADA CUENTA</p><h1>{tab === 'Resumen' ? 'Tu camino, en números.' : tab === 'Jornadas' ? 'Registra tu jornada.' : tab === 'Combustible' ? 'Cada carga, bajo control.' : 'Tus datos, contigo.'}</h1><p className="subtitle">{tab === 'Resumen' ? 'Una mirada clara a tu trabajo y a tu Stonic.' : tab === 'Jornadas' ? 'Anota cómo te fue al terminar de conducir.' : tab === 'Combustible' ? 'Lleva un historial de tus compras de combustible.' : 'Guarda una copia y conoce los próximos pasos.'}</p></div><span className="version-tag">PRIMERA VERSIÓN</span></div>
+        <div className="page-heading"><div><p className="eyebrow">CADA JORNADA CUENTA</p><h1>{tab === 'Resumen' ? 'Tu camino, en números.' : tab === 'Jornadas' ? 'Registra tu jornada.' : tab === 'Combustible' ? 'Cada carga, bajo control.' : 'Tus datos, contigo.'}</h1><p className="subtitle">{tab === 'Resumen' ? 'Una mirada clara a tu trabajo y a tu vehículo.' : tab === 'Jornadas' ? 'Anota cómo te fue al terminar de conducir.' : tab === 'Combustible' ? 'Lleva un historial de tus compras de combustible.' : 'Guarda una copia y conoce los próximos pasos.'}</p></div><span className="version-tag">PRIMERA VERSIÓN</span></div>
         <section className={mode === 'demo' ? 'mode-banner' : 'mode-banner real'} aria-label="Modo de datos"><div><strong>{mode === 'demo' ? 'Estás explorando datos de ejemplo' : 'Estás usando tus registros personales'}</strong><p>{mode === 'demo' ? 'Practica con cifras ficticias. Los cambios de práctica se reinician al recargar.' : 'Guardados en este navegador. Descarga respaldos para conservar una copia.'}</p></div><button className="outline" onClick={() => { setMode(mode === 'demo' ? 'real' : 'demo'); setEditing(null); setFormKey(k => k + 1); setMessage(''); setError(''); setFrom(''); setTo(''); }}>{mode === 'demo' ? 'Usar mis registros' : 'Ver demostración'} <span aria-hidden="true">↗</span></button></section>
         {loadError && mode === 'real' && <p className="alert error" role="alert">{loadError}</p>}
         {message && <p className="alert" role="status">{message}</p>}{error && <p className="alert error" role="alert">{error}</p>}
@@ -226,7 +226,7 @@ export default function App() {
             </div>
           </div>
         </div>}
-        <footer><span>STONIC DRIVER AI</span><span>Hecho para tu día a día en Guayaquil.</span><span>Local · Personal · A tu ritmo</span></footer>
+        <footer><span>UBER DRIVER AI</span><span>Hecho para tu día a día en Guayaquil.</span><span>Local · Personal · Soberano</span></footer>
       </div>
     </main>
   </div>;

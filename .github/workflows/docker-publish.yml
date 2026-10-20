@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: mandebitcoin/stonic-driver-ai
+  IMAGE_NAME: mandebitcoin/uber-driver-ai
 
 jobs:
   build-and-push:

@@ -1,0 +1,35 @@
+manifestVersion: 1
+id: uber-driver-ai
+name: Uber Driver AI
+tagline: Bitácora personal y copiloto para conducir en Guayaquil
+icon: https://raw.githubusercontent.com/ManDeBitcoin/uber-driver-ai/main/assets/icon.png
+category: personal
+version: "0.1.0"
+port: 5174
+description: >-
+  Uber Driver AI es tu bitácora personal y copiloto para el registro eficiente de jornadas,
+  combustible y viajes en Guayaquil.
+
+  Características principales:
+  • Diseñada desde cero: perfecta para comenzar a registrar desde tu primer viaje y compra de gasolina.
+  • Registro manual ágil: fecha, horas trabajadas, kilómetros, viajes completados e ingresos netos en USD.
+  • Historial y control de combustible: galones cargados, odómetro y costo por galón en tiempo real.
+  • Métricas clave: ingresos por hora, saldo registrado y gráficos de desempeño semanal.
+  • Importación preparada de reportes CSV de Uber Driver cuando descargues tus extractos oficiales.
+  • Soberana y privada: se ejecuta en tu propio servidor Umbrel OS bajo tu control.
+developer: ManDeBitcoin
+website: https://github.com/ManDeBitcoin/uber-driver-ai
+repo: https://github.com/ManDeBitcoin/uber-driver-ai
+support: https://github.com/ManDeBitcoin/uber-driver-ai/issues
+dependencies: []
+gallery:
+  - https://raw.githubusercontent.com/ManDeBitcoin/uber-driver-ai/main/docs/screenshots/dashboard.png
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: |-
+  Versión 0.1.0
+
+  - Nueva identidad: Uber Driver AI.
+  - Inicio limpio desde cero para registrar jornadas reales.
+  - Servidor de producción en contenedor Docker para Umbrel OS (puerto 5174).

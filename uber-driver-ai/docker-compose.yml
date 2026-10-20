@@ -3,11 +3,11 @@ version: "3.7"
 services:
   app_proxy:
     environment:
-      APP_HOST: stonic-driver-ai_web_1
+      APP_HOST: uber-driver-ai_web_1
       APP_PORT: 80
 
   web:
-    image: ghcr.io/mandebitcoin/stonic-driver-ai:0.1.0
+    image: ghcr.io/mandebitcoin/uber-driver-ai:0.1.0
     restart: on-failure
     stop_grace_period: 30s
     healthcheck:
